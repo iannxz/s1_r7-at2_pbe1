@@ -1,62 +1,33 @@
 const db = require('../config/db'); 
 
-const clienteModel = {
-
-  /**
-   * Insere um novo cliente, seu endereço e telefone no banco utilizando transação.
-   * @param {Object} dadosCliente 
-   * @param {Object} dadosEndereco 
-   * @param {string} telefone
-   * @returns {Object} 
-   */
+const { clienteModel } = {
   insert: async (dadosCliente, dadosEndereco, telefone) => {
-    let connection;
     try {
-      connection = await db.getConnection();
+      const sql = `CALL sp_cadastra_cliente_completo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       
-      await connection.beginTransaction();
-
-      const sqlCliente = `
-        INSERT INTO clientes (nome, cpf, email) 
-        VALUES (?, ?, ?)
-      `;
-      const valuesCliente = [dadosCliente.nome, dadosCliente.cpf, dadosCliente.email];
-      const [resultCliente] = await connection.query(sqlCliente, valuesCliente);
-      
-      const novoIdCliente = resultCliente.insertId; 
-
-      const sqlEndereco = `
-        INSERT INTO enderecos (cliente_id, cep, logradouro, bairro, cidade, uf, numero, complemento) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-      const valuesEndereco = [
-        novoIdCliente, 
-        dadosEndereco.cep, 
-        dadosEndereco.logradouro, 
-        dadosEndereco.bairro, 
-        dadosEndereco.cidade, 
+      const values = [
+        dadosCliente.nome,
+        dadosCliente.cpf,
+        dadosCliente.email,
+        dadosEndereco.cep,
+        dadosEndereco.rua,
+        dadosEndereco.bairro,
+        dadosEndereco.cidade,
         dadosEndereco.uf,
         dadosEndereco.numero,
-        dadosEndereco.complemento
+        dadosEndereco.complemento,
+        telefone
       ];
-      await connection.query(sqlEndereco, valuesEndereco);
 
-      const sqlTelefone = `INSERT INTO telefones (cliente_id, numero) VALUES (?, ?)`;
-      await connection.query(sqlTelefone, [novoIdCliente, telefone]);
-
-      await connection.commit();
+      const [rows] = await db.query(sql, values);
       
-      return { id: novoIdCliente, mensagem: "Cliente cadastrado com sucesso!" };
+      return rows[0][0]; 
 
     } catch (error) {
-      if (connection) await connection.rollback();
-      console.error("Erro na transação:", error);
+      console.error("Erro ao executar procedure:", error);
       throw error;
-    } finally {
-
-      if (connection) connection.release();
     }
   },
 }
 
-module.exports = clienteModel;
+module.exports = { clienteModel };

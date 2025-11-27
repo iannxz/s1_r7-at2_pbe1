@@ -1,14 +1,13 @@
-const clienteModel = require('../models/clienteModel');
+const { clienteModel } = require('../models/clienteModel');
 
-const clienteController = {
-
+const  clienteController = {
 
   incluiCliente: async (req, res) => {
     try {
-      const { nome, cpf, cep } = req.body;
+      const { nome, cpf, email, cep, numero, complemento, telefone } = req.body;
 
-      if ((nome && !isNaN(nome)) || (cpf && isNaN(cpf))) {
-        return res.status(400).json({ message: 'Verifique os dados enviados (Nome ou CPF inválidos)' });
+      if (!nome || !cpf) {
+        return res.status(400).json({ message: 'Nome e CPF são obrigatórios.' });
       }
 
       if (!cep || cep.length !== 8) {
@@ -21,41 +20,40 @@ const clienteController = {
         throw new Error('Falha na comunicação com o serviço de CEP');
       }
 
-      const dadosEndereco = await respostaViaCep.json();
+      const dadosViaCep = await respostaViaCep.json();
 
-      if (dadosEndereco.erro) {
-        return res.status(404).json({ message: 'CEP não encontrado na base de dados.' });
+      if (dadosViaCep.erro) {
+        return res.status(404).json({ message: 'CEP não encontrado.' });
       }
 
-      const resultado = await clienteModel.insert(
-        nome, 
-        cpf, 
-        cep, 
-        dadosEndereco.logradouro, 
-        dadosEndereco.bairro, 
-        dadosEndereco.localidade, 
-        dadosEndereco.uf          
-      );
+      const dadosCliente = {
+        nome: nome,
+        cpf: cpf.replace(/\D/g, ''),
+        email: email 
+      };
 
-      if (resultado.insertId === 0) {
-        throw new Error("Ocorreu erro ao inserir o cliente no banco");
-      }
+      const dadosEndereco = {
+        cep: cep,
+        rua: dadosViaCep.logradouro, 
+        bairro: dadosViaCep.bairro,
+        cidade: dadosViaCep.localidade,
+        uf: dadosViaCep.uf,
+        numero: numero,           
+        complemento: complemento 
+      };
+
+      const resultado = await clienteModel.insert(dadosCliente, dadosEndereco, telefone);
 
       res.status(201).json({
         message: 'Cadastrado com sucesso',
-        data: resultado,
-        endereco_salvo: {
-          cep: cep,
-          rua: dadosEndereco.logradouro,
-          cidade: dadosEndereco.localidade
-        }
+        id_cliente: resultado.id
       });
 
     } catch (error) {
       console.error(error);
       res.status(500).json({
         message: 'Ocorreu um erro no servidor',
-        errorMessage: error.message
+        error: error.message
       });
     }
   },
