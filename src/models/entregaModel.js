@@ -11,19 +11,19 @@ const entregaModel = {
         const values = [pId];
         const [rows] = await pool.query(procedure, values);
         return rows[0];
-    }// criar de forma automatica, apos a criação do pedido, e atualizar tbm, os valores, fazendo o calculo 
+    },// criar de forma automatica, apos a criação do pedido, e atualizar tbm, os valores, fazendo o calculo 
     // insert: async (pId, pValorDistancia, pValorPeso, pAcrescimo, pDesconto, pTaxaExtra, pvalorFinal, pStatusEntrega) => {
     //     const procedure = 'CALL inserir_entrega(?,?,?,?,?,?);';
     //     const values = [pId, pValorDistancia, pValorPeso, pAcrescimo, pDesconto, pTaxaExtra, pvalorFinal, pStatusEntrega];
     //     const [rows] = await pool.query(procedure, values);
     //     return rows[0];
     //},// só é possivel editar lgumas coisas
-    // update: async (pId, pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente) => {
-    //     const procedure = 'CALL alterar_entrega(?,?,?,?,?,?,?);';
-    //     const values = [pId, pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente];
-    //     const [rows] = await pool.query(procedure, values);
-    //     return rows;
-    // },
+    update: async (pId, pStatusEntrega) => {
+        const procedure = 'CALL alterar_status_entrega(?,?);';
+        const values = [pId, pStatusEntrega];
+        const [rows] = await pool.query(procedure, values);
+        return rows;
+    }
     // // devo deletar entregas e pedidos??? Talvez não tenha motivo
     // delete: async (pId) => {
     //     const procedure = 'CALL deletar_entrega(?)';

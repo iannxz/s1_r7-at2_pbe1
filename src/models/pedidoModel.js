@@ -24,15 +24,6 @@ const pedidoModel = {
         const [rows] = await pool.query(procedure, values);
         return rows;
     }
-    // delete: async (pId) => {
-    //     const procedure = 'CALL deletar_pedido(?)';
-    //     const values = [pId];
-    //     const [rows] = await pool.query(procedure, values);
-    //     return rows;
-    // }
-
-
-
 
 };
 

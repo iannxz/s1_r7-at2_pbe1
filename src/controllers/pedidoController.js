@@ -60,7 +60,7 @@ const pedidoController = {
             const { tipoEntrega, distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente } = req.body;
 
             if (!idPedido || (!tipoEntrega && !distancia && !pesoCarga && !valorBaseKm && !valorBaseKg && !idCliente) || (!isNaN(tipoEntrega) && isNaN(distancia) && isNaN(pesoCarga) && isNaN(valorBaseKm) && isNaN(valorBaseKg) && isNaN(idCliente)) || typeof idPedido != 'number') {
-                return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente' });
+                return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente'});
             }
 
             if (tipoEntrega && (tipoEntrega.toUpperCase() !== "NORMAL") && (tipoEntrega.toUpperCase() !== "URGENTE")) {
@@ -94,35 +94,6 @@ const pedidoController = {
             res.status(500).json({ message: 'Ocorreu um erro no servidor', errorMessage: error.message });
         }
     }
-    // excluiPedido: async (req, res) => {
-    //     try {
-    //         const idPedido = Number(req.params.idPedido);
-
-    //         if (!idPedido || !Number.isInteger(idPedido)) {
-    //             return res.status(400).json({ message: 'Forneça um identificador valido' });
-    //         }
-
-    //         const pedido = await pedidoModel.selectById(idPedido);
-    //         if (pedido.length === 0) {
-    //             return res.status(200).json({ message: 'Produto não localizado na base de dados' });
-    //         }
-
-    //         await pedidoModel.delete(idPedido);
-
-    //         const pedidoDepois = await pedidoModel.selectById(idPedido);
-
-    //         if (pedidoDepois.length > 0) {
-    //             return res.status(200).json({ message: 'Ocorreu um erro ao excluir o pedido' });
-    //         }
-
-    //         res.status(200).json({ message: 'Produto Excluido com sucesso' });
-
-
-    //     } catch (error) {
-    //         console.error(error);
-    //         res.status(500).json({ message: 'Ocorreu um erro no servidor', errorMessage: error.message });
-    //     }
-    // }
 
 };
 
