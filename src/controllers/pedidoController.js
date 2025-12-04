@@ -1,4 +1,4 @@
-const pedidoModel = require('../models/pedidoModel');
+const { pedidoModel } = require('../models/pedidoModel');
 
 const pedidoController = {
 

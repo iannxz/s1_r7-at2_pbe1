@@ -1,9 +1,22 @@
 const { pool } = require('../config/db');
 
 const clienteModel  = {
+  verificarDuplicidade: async (cpf, email) => {
+    try {
+      const sql = `SELECT count(*) as total FROM clientes WHERE cpf = ? OR email = ?`;
+      const values = [cpf, email];
+      
+      const [rows] = await pool.query(sql, values);
+      
+      return rows[0].total > 0; 
+    } catch (error) {
+      throw error;
+    }
+  },
+
   insert: async (dadosCliente, dadosEndereco, telefone) => {
     try {
-      const sql = `CALL cadastra_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const sql = `CALL cadastra_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       
       const values = [
         dadosCliente.nome,
