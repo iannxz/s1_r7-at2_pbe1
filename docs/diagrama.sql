@@ -21,10 +21,11 @@ USE `rapido_seguro` ;
 -- Table `rapido_seguro`.`clientes`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rapido_seguro`.`clientes` (
-  `id_cliente` INT NOT NULL,
+  `id_cliente` INT NOT NULL AUTO_INCREMENT,
   `nome_cliente` VARCHAR(100) NOT NULL,
   `cpf` CHAR(11) NOT NULL,
   `email` VARCHAR(100) NOT NULL,
+  `data_nascimento` DATE NOT NULL,
   PRIMARY KEY (`id_cliente`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   UNIQUE INDEX `cpf_UNIQUE` (`cpf` ASC) VISIBLE)
@@ -35,7 +36,7 @@ ENGINE = InnoDB;
 -- Table `rapido_seguro`.`telefones`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rapido_seguro`.`telefones` (
-  `id_telefone` INT NOT NULL,
+  `id_telefone` INT NOT NULL AUTO_INCREMENT,
   `telefone` CHAR(11) NOT NULL,
   `id_cliente` INT NOT NULL,
   PRIMARY KEY (`id_telefone`),
@@ -53,7 +54,7 @@ ENGINE = InnoDB;
 -- Table `rapido_seguro`.`enderecos`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rapido_seguro`.`enderecos` (
-  `id_endereco` INT NOT NULL,
+  `id_endereco` INT NOT NULL AUTO_INCREMENT,
   `cep` CHAR(8) NOT NULL,
   `rua` VARCHAR(100) NOT NULL,
   `bairro` VARCHAR(100) NOT NULL,
@@ -76,8 +77,8 @@ ENGINE = InnoDB;
 -- Table `rapido_seguro`.`pedidos`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `rapido_seguro`.`pedidos` (
-  `id_pedido` INT NOT NULL,
-  `data_pedido` TIMESTAMP NOT NULL,
+  `id_pedido` INT NOT NULL AUTO_INCREMENT,
+  `data_pedido` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   `tipo_entrega` VARCHAR(45) NOT NULL,
   `distancia` DECIMAL(10,2) NOT NULL,
   `peso_carga` DECIMAL(10,2) NOT NULL,
