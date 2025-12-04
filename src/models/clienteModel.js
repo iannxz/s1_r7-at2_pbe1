@@ -1,14 +1,15 @@
-const db = require('../config/db'); 
+const { pool } = require('../config/db');
 
-const { clienteModel } = {
+const clienteModel  = {
   insert: async (dadosCliente, dadosEndereco, telefone) => {
     try {
-      const sql = `CALL sp_cadastra_cliente_completo(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const sql = `CALL cadastra_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       
       const values = [
         dadosCliente.nome,
         dadosCliente.cpf,
         dadosCliente.email,
+        dadosCliente.data_nascimento,
         dadosEndereco.cep,
         dadosEndereco.rua,
         dadosEndereco.bairro,
@@ -19,7 +20,7 @@ const { clienteModel } = {
         telefone
       ];
 
-      const [rows] = await db.query(sql, values);
+      const [rows] = await pool.query(sql, values);
       
       return rows[0][0]; 
 
@@ -30,4 +31,4 @@ const { clienteModel } = {
   },
 }
 
-module.exports = { clienteModel };
+module.exports = clienteModel ;

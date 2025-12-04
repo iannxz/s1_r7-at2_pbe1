@@ -1,10 +1,10 @@
-const { clienteModel } = require('../models/clienteModel');
+const clienteModel = require('../models/clienteModel');
 
 const  clienteController = {
 
   incluiCliente: async (req, res) => {
     try {
-      const { nome, cpf, email, cep, numero, complemento, telefone } = req.body;
+      const { nome, cpf, email, data_nascimento, cep, numero, complemento, telefone } = req.body;
 
       if (!nome || !cpf) {
         return res.status(400).json({ message: 'Nome e CPF são obrigatórios.' });
@@ -29,7 +29,8 @@ const  clienteController = {
       const dadosCliente = {
         nome: nome,
         cpf: cpf.replace(/\D/g, ''),
-        email: email 
+        email: email,
+        data_nascimento: data_nascimento
       };
 
       const dadosEndereco = {
@@ -59,4 +60,4 @@ const  clienteController = {
   },
 };
 
-module.exports = { clienteController };
+module.exports = clienteController;
