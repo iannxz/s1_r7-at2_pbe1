@@ -260,3 +260,79 @@ BEGIN
 END $$
 
 DELIMITER ;
+
+---
+
+CREATE  PROCEDURE atualiza_cliente(
+    IN p_id INT,
+    IN p_nome VARCHAR(255),
+    IN p_email VARCHAR(255),
+    IN p_telefone VARCHAR(20)
+)
+BEGIN
+
+    UPDATE clientes 
+    SET nome = p_nome, 
+        email = p_email 
+    WHERE id = p_id;
+    
+    UPDATE telefones
+    SET numero = p_telefone
+    WHERE cliente_id = p_id; 
+END
+
+
+--
+
+CREATE PROCEDURE cadastra_cliente(
+    IN p_nome VARCHAR(100),
+    IN p_cpf VARCHAR(14),
+    IN p_email VARCHAR(100),
+    IN p_data_nascimento DATE,
+    IN p_cep VARCHAR(9),
+    IN p_rua VARCHAR(100),
+    IN p_bairro VARCHAR(100),
+    IN p_cidade VARCHAR(100),
+    IN p_uf CHAR(2),
+    IN p_numero VARCHAR(10),
+    IN p_complemento VARCHAR(100),
+    IN p_telefone VARCHAR(20)
+)
+BEGIN
+    DECLARE v_id_cliente INT;
+
+    INSERT INTO clientes (nome_cliente, cpf, email, data_nascimento) 
+    VALUES (p_nome, p_cpf, p_email, p_data_nascimento);
+
+    SET v_id_cliente = LAST_INSERT_ID();
+
+    INSERT INTO enderecos (id_cliente, cep, rua, bairro, cidade, uf, numero, complemento)
+    VALUES (v_id_cliente, p_cep, p_rua, p_bairro, p_cidade, p_uf, p_numero, p_complemento);
+
+    INSERT INTO telefones (id_cliente, telefone)
+    VALUES (v_id_cliente, p_telefone);
+    
+    SELECT v_id_cliente as id;
+
+END
+
+--
+
+CREATE PROCEDURE deleta_cliente(IN p_id INT)
+BEGIN
+    DELETE e 
+    FROM entregas e 
+    INNER JOIN pedidos p ON e.id_pedido_entrega = p.id_pedido 
+    WHERE p.id_cliente = p_id;
+
+    DELETE FROM pedidos WHERE id_cliente = p_id;
+
+    DELETE FROM telefones WHERE id_cliente = p_id;
+
+    DELETE FROM enderecos WHERE id_cliente = p_id;
+
+    DELETE FROM clientes WHERE id_cliente = p_id; 
+END
+
+--
+
