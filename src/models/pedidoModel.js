@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const  pool  = require('../config/db');
 
 const pedidoModel = {
     selectAll: async () => {
@@ -27,4 +27,4 @@ const pedidoModel = {
 
 };
 
-module.exports = { pedidoModel }
+module.exports =  pedidoModel 

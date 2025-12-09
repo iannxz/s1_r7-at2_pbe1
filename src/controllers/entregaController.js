@@ -1,4 +1,4 @@
-const { entregaModel } = require('../models/entregaModel');
+const  entregaModel  = require('../models/entregaModel');
 
 const entregaController = {
 
@@ -70,4 +70,4 @@ const entregaController = {
     }
 };
 
-module.exports = { entregaController };
+module.exports =  entregaController ;

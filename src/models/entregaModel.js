@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const  pool  = require('../config/db');
 
 const entregaModel = {
     selectAll: async () => {
@@ -20,4 +20,4 @@ const entregaModel = {
     }
 };
 
-module.exports = { entregaModel }
+module.exports =  entregaModel 
