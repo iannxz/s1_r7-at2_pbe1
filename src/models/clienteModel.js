@@ -1,126 +1,105 @@
-const clienteModel = require('../models/clienteModel');
+const db = require('../config/db'); 
 
-const clienteController = {
-
-  incluiCliente: async (req, res) => {
+const clienteModel  = {
+  insert: async (dadosCliente, dadosEndereco, telefone) => {
     try {
-      const { nome, cpf, email, data_nascimento, cep, numero, complemento, telefone } = req.body;
+      const sql = `CALL cadastra_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      
+      const values = [
+        dadosCliente.nome,
+        dadosCliente.cpf,
+        dadosCliente.email,
+        dadosCliente.data_nascimento,
 
-      const cpfLimpo = cpf ? cpf.replace(/\D/g, '') : '';
+        dadosEndereco.cep,
+        dadosEndereco.rua,
+        dadosEndereco.bairro,
+        dadosEndereco.cidade,
+        dadosEndereco.uf,
+        dadosEndereco.numero,
+        dadosEndereco.complemento,
+        telefone
+      ];
 
-      // validação antes do banco
-      if (!nome || !cpfLimpo || !email) {
-         return res.status(400).json({ message: 'Nome, CPF e Email são obrigatórios.' });
-      }
-
-      const jaExiste = await clienteModel.verificarDuplicidade(cpfLimpo, email);
-    
-      if (jaExiste) {
-        return res.status(409).json({ message: 'Erro: CPF ou E-mail já estão cadastrados.' });
-      }
-    
-      const dadosViaCep = { logradouro: "Rua Teste", bairro: "Bairro", localidade: "Cidade", uf: "SP" };
-
-      const dadosCliente = {
-        nome: nome,
-        cpf: cpfLimpo,
-        email: email,
-        data_nascimento: data_nascimento
-      };
-
-      const dadosEndereco = {
-        cep: cep,
-        rua: dadosViaCep.logradouro, 
-        bairro: dadosViaCep.bairro,
-        cidade: dadosViaCep.localidade,
-        uf: dadosViaCep.uf,
-        numero: numero,          
-        complemento: complemento 
-      };
-
-      const resultado = await clienteModel.insert(dadosCliente, dadosEndereco, telefone);
-
-      res.status(201).json({
-        message: 'Cadastrado com sucesso',
-        id_cliente: resultado ? resultado.id : null
-      });
+      const [rows] = await db.query(sql, values);
+      
+      return rows[0][0]; 
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Erro no servidor', error: error.message });
+      console.error("Erro ao executar procedure:", error);
+      throw error;
     }
   },
 
-  buscaCliente: async (req, res) => {
+  verificarSeExiste: async (id) => {
     try {
-      const { id } = req.params;
-
-      if (!id) return res.status(400).json({ message: 'ID é obrigatório' });
-
-      const cliente = await clienteModel.selectById(id);
-
-      if (!cliente) {
-        return res.status(404).json({ message: 'Cliente não encontrado' });
-      }
-
-      return res.status(200).json(cliente);
-
+      const sql = 'SELECT id_cliente FROM clientes WHERE id_cliente = ?'; 
+      const [rows] = await db.query(sql, [id]);
+      
+      // true se encontrar, false se nao encontrar
+      return rows.length > 0;
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Erro ao buscar cliente', error: error.message });
+      throw error;
     }
   },
 
-  atualizaCliente: async (req, res) => {
+
+delete: async (id) => {
     try {
-      const { id } = req.params; 
-      const { nome, email, telefone } = req.body; 
+      const sql = 'CALL deleta_cliente(?)';
 
-      if (!id) {
-        return res.status(400).json({ message: 'ID do cliente é obrigatório.' });
-      }
-
-      const linhasAfetadas = await clienteModel.update(id, { nome, email, telefone });
-
-      if (linhasAfetadas === 0) {
-        return res.status(404).json({ message: 'Cliente não encontrado para atualização.' });
-      }
-
-      return res.status(200).json({ message: 'Cliente atualizado com sucesso.' });
-
+      await db.query(sql, [id]);
+      
+      return true;
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Erro ao atualizar cliente', error: error.message });
+      console.error("Erro ao deletar cliente:", error);
+      throw error;
     }
   },
 
-  deletaCliente: async (req, res) => {
+  selectAll: async () => {
     try {
-      const { id } = req.params;
-
-      if (!id) {
-        return res.status(400).json({ message: 'ID do cliente é obrigatório.' });
-      }
-
-      const possuiPedidos = await clienteModel.verificarSeTemPedidos(id);
-
-      if (possuiPedidos) {
-        return res.status(409).json({ 
-            message: 'Operação negada: Este cliente possui pedidos registrados e não pode ser excluído.' 
-        });
-      }
+      const sql = 'CALL seleciona_clientes()';
+      const [rows] = await db.query(sql);
+      
+      return rows[0]; 
+    } catch (error) {
+      console.error("Erro ao selecionar clientes:", error);
+      throw error;
+    }
+  },
 
 
-      await clienteModel.delete(id);
+  update: async (id, dadosCliente, dadosEndereco, telefone) => {
+    try {
+      const sql = `CALL atualiza_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      
+      const values = [
+        id, 
+        dadosCliente.nome,
+        dadosCliente.cpf,
+        dadosCliente.email,
+        dadosCliente.data_nascimento,
 
-      return res.status(200).json({ message: 'Cliente e dados de contato excluídos com sucesso.' });
+        dadosEndereco.cep,
+        dadosEndereco.rua,
+        dadosEndereco.bairro,
+        dadosEndereco.cidade,
+        dadosEndereco.uf,
+        dadosEndereco.numero,
+        dadosEndereco.complemento,
+        
+        telefone
+      ];
+
+      await db.query(sql, values);
+      return true;
 
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Erro ao excluir cliente', error: error.message });
+      console.error("Erro ao atualizar cliente:", error);
+      throw error;
     }
-  }
-
+  },
 };
 
-module.exports = clienteController;
+module.exports =  clienteModel ;

@@ -60,7 +60,7 @@ const pedidoController = {
             const { tipoEntrega, distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente } = req.body;
 
             if (!idPedido || (!tipoEntrega && !distancia && !pesoCarga && !valorBaseKm && !valorBaseKg && !idCliente) || (!isNaN(tipoEntrega) && isNaN(distancia) && isNaN(pesoCarga) && isNaN(valorBaseKm) && isNaN(valorBaseKg) && isNaN(idCliente)) || typeof idPedido != 'number') {
-                return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente' });
+                return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente'});
             }
 
             if (tipoEntrega && (tipoEntrega.toUpperCase() !== "NORMAL") && (tipoEntrega.toUpperCase() !== "URGENTE")) {
@@ -94,6 +94,7 @@ const pedidoController = {
             res.status(500).json({ message: 'Ocorreu um erro no servidor', errorMessage: error.message });
         }
     }
+
 };
 
 module.exports = { pedidoController };
