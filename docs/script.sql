@@ -276,4 +276,45 @@ END $$
 DELIMITER ;
 
 
+-- Telefone
+
+-- Inserir mais telefones para um cliente expecifico
+DELIMITER $$
+
+CREATE PROCEDURE inserir_telefone(IN pIdCliente INT, IN pTelefone CHAR(11))
+BEGIN
+    INSERT INTO telefones(telefone, id_cliente) VALUES
+	(pTelefone, pIdCliente);
+END $$
+
+DELIMITER ;
+
+
+-- telefone expecifico
+
+DELIMITER $$
+
+CREATE PROCEDURE listar_telefone_id(IN pIdTelefone INT)
+BEGIN
+    SELECT *
+    FROM telefones
+    WHERE id_telefone = pIdTelefone;
+END $$
+
+DELIMITER ;
+
+
+-- Deletar telefone
+
+DELIMITER $$
+
+CREATE PROCEDURE deletar_telefone(IN pIdTelefone INT)
+BEGIN
+    DELETE FROM telefones WHERE id_telefone = pIdTelefone; 	
+END $$
+
+DELIMITER ;
+
+
+
 
