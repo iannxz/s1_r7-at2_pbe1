@@ -1,4 +1,4 @@
-const pedidoModel = require('../models/pedidoModel');
+const  pedidoModel  = require('../models/pedidoModel');
 
 const pedidoController = {
 
@@ -36,17 +36,23 @@ const pedidoController = {
     },
     inserePedido: async (req, res) => {
         try {
-            const { tipoEntrega, distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente } = req.body;
+            const { tipoEntrega, distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente, idEndereco } = req.body;
 
-            if (!tipoEntrega || !distancia || !pesoCarga || !valorBaseKm || !valorBaseKg || !idCliente || !isNaN(tipoEntrega) || isNaN(distancia) || isNaN(pesoCarga) || isNaN(valorBaseKm) || isNaN(valorBaseKg) || isNaN(idCliente)) {
+            if (!tipoEntrega || !distancia || !pesoCarga || !valorBaseKm || !valorBaseKg || !idCliente || !idEndereco || !isNaN(tipoEntrega) || isNaN(distancia) || isNaN(pesoCarga) || isNaN(valorBaseKm) || isNaN(valorBaseKg) || isNaN(idCliente) || isNaN(idEndereco)) {
                 return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente' });
+            }
+
+            const enderecoClienteExiste = await pedidoModel.selectEnderecoId(idEndereco, idCliente);
+
+            if (!enderecoClienteExiste || enderecoClienteExiste.length === 0) {
+                return res.status(400).json({ message: 'O endereço informado não pertence ao cliente' });
             }
 
             if ((tipoEntrega.toUpperCase() !== "NORMAL") && (tipoEntrega.toUpperCase() !== "URGENTE")) {
                 return res.status(400).json({ message: 'Verifique os dados é apenas considerado "normal" ou "urgente"' });
             }
 
-            const resultado = await pedidoModel.insert(tipoEntrega.toUpperCase(), distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente);
+            const resultado = await pedidoModel.insert(tipoEntrega.toUpperCase(), distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente, idEndereco);
             res.status(201).json({ message: 'Registro incluido com sucesso', data: resultado })
 
         } catch (error) {
@@ -57,10 +63,10 @@ const pedidoController = {
     atualizaPedido: async (req, res) => {
         try {
             const idPedido = Number(req.params.idPedido);
-            const { tipoEntrega, distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente } = req.body;
+            const { tipoEntrega, distancia, pesoCarga, valorBaseKm, valorBaseKg, idCliente, idEndereco } = req.body;
 
-            if (!idPedido || (!tipoEntrega && !distancia && !pesoCarga && !valorBaseKm && !valorBaseKg && !idCliente) || (!isNaN(tipoEntrega) && isNaN(distancia) && isNaN(pesoCarga) && isNaN(valorBaseKm) && isNaN(valorBaseKg) && isNaN(idCliente)) || typeof idPedido != 'number') {
-                return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente'});
+            if (!idPedido || (!tipoEntrega && !distancia && !pesoCarga && !valorBaseKm && !valorBaseKg && !idCliente && !idEndereco) || (!isNaN(tipoEntrega) && isNaN(distancia) && isNaN(pesoCarga) && isNaN(valorBaseKm) && isNaN(valorBaseKg) && isNaN(idCliente) && isNaN(idEndereco)) || typeof idPedido != 'number') {
+                return res.status(400).json({ message: 'Verifique os dados enviados e tente novamente' });
             }
 
             if (tipoEntrega && (tipoEntrega.toUpperCase() !== "NORMAL") && (tipoEntrega.toUpperCase() !== "URGENTE")) {
@@ -78,9 +84,19 @@ const pedidoController = {
             const novoValorBaseKm = valorBaseKm ?? pedidoAtual[0].valor_base_km;
             const novoValorBaseKg = valorBaseKg ?? pedidoAtual[0].valor_base_kg;
             const novoIdCliente = idCliente ?? pedidoAtual[0].id_cliente;
+            const novoIdEndereco = idEndereco ?? pedidoAtual[0].id_endereco;
+
+            
+            const enderecoClienteExiste = await pedidoModel.selectEnderecoId(idEndereco, novoIdCliente);
+
+            if (!enderecoClienteExiste || enderecoClienteExiste.length === 0) {
+                return res.status(400).json({
+                    message: 'O endereço informado não pertence ao cliente'
+                });
+            }
 
 
-            await pedidoModel.update(idPedido, novoTipoEntrega.toUpperCase(), novadistancia, novoPesoCarga, novoValorBaseKm, novoValorBaseKg, novoIdCliente);
+            await pedidoModel.update(idPedido, novoTipoEntrega.toUpperCase(), novadistancia, novoPesoCarga, novoValorBaseKm, novoValorBaseKg, novoIdCliente, novoIdEndereco);
 
             const pedidoNovo = await pedidoModel.selectById(idPedido);
             if (JSON.stringify(pedidoAtual) === JSON.stringify(pedidoNovo)) {

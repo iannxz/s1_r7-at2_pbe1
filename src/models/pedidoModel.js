@@ -12,15 +12,21 @@ const pedidoModel = {
         const [rows] = await pool.query(procedure, values);
         return rows[0];
     },
-    insert: async (pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente) => {
-        const procedure = 'CALL inserir_pedido(?,?,?,?,?,?);';
-        const values = [pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente];
+    selectEnderecoId: async (pIdEndereco, pIdCliente) => {
+        const procedure = 'CALL listar_endereco_id(?,?)';
+        const values = [pIdEndereco, pIdCliente];
         const [rows] = await pool.query(procedure, values);
         return rows[0];
     },
-    update: async (pId, pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente) => {
-        const procedure = 'CALL alterar_pedido(?,?,?,?,?,?,?);';
-        const values = [pId, pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente];
+    insert: async (pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente, pIdEndereco) => {
+        const procedure = 'CALL inserir_pedido(?,?,?,?,?,?,?);';
+        const values = [pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente, pIdEndereco];
+        const [rows] = await pool.query(procedure, values);
+        return rows[0];
+    },
+    update: async (pId, pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente, pIdEndereco) => {
+        const procedure = 'CALL alterar_pedido(?,?,?,?,?,?,?,?);';
+        const values = [pId, pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente, pIdEndereco];
         const [rows] = await pool.query(procedure, values);
         return rows;
     }

@@ -263,39 +263,6 @@ DELIMITER ;
 
 --
 
-CREATE PROCEDURE cadastra_cliente(
-    IN p_nome VARCHAR(100),
-    IN p_cpf VARCHAR(14),
-    IN p_email VARCHAR(100),
-    IN p_data_nascimento DATE,
-    IN p_cep VARCHAR(9),
-    IN p_rua VARCHAR(100),
-    IN p_bairro VARCHAR(100),
-    IN p_cidade VARCHAR(100),
-    IN p_uf CHAR(2),
-    IN p_numero VARCHAR(10),
-    IN p_complemento VARCHAR(100),
-    IN p_telefone VARCHAR(20)
-)
-BEGIN
-    DECLARE v_id_cliente INT;
-
-    INSERT INTO clientes (nome_cliente, cpf, email, data_nascimento) 
-    VALUES (p_nome, p_cpf, p_email, p_data_nascimento);
-
-    SET v_id_cliente = LAST_INSERT_ID();
-
-    INSERT INTO enderecos (id_cliente, cep, rua, bairro, cidade, uf, numero, complemento)
-    VALUES (v_id_cliente, p_cep, p_rua, p_bairro, p_cidade, p_uf, p_numero, p_complemento);
-
-    INSERT INTO telefones (id_cliente, telefone)
-    VALUES (v_id_cliente, p_telefone);
-    
-    SELECT v_id_cliente as id;
-
-END
-
---
 
 CREATE PROCEDURE deleta_cliente(IN p_id INT)
 BEGIN
@@ -355,40 +322,6 @@ BEGIN
     WHERE id_cliente = p_id_cliente;
 END
 
--- cafastra cliente
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `cadastra_cliente`(
-    IN p_nome VARCHAR(100),
-    IN p_cpf VARCHAR(14),
-    IN p_email VARCHAR(100),
-    IN p_data_nascimento DATE,
-    IN p_cep VARCHAR(9),
-    IN p_rua VARCHAR(100),
-    IN p_bairro VARCHAR(100),
-    IN p_cidade VARCHAR(100),
-    IN p_uf CHAR(2),
-    IN p_numero VARCHAR(10),
-    IN p_complemento VARCHAR(100),
-    IN p_telefone VARCHAR(20)
-)
-BEGIN
-    DECLARE v_id_cliente INT;
-
-    INSERT INTO clientes (nome_cliente, cpf, email, data_nascimento) 
-    VALUES (p_nome, p_cpf, p_email, p_data_nascimento);
-
-    SET v_id_cliente = LAST_INSERT_ID();
-
-    INSERT INTO enderecos (id_cliente, cep, rua, bairro, cidade, uf, numero, complemento)
-    VALUES (v_id_cliente, p_cep, p_rua, p_bairro, p_cidade, p_uf, p_numero, p_complemento);
-
-    INSERT INTO telefones (id_cliente, telefone)
-    VALUES (v_id_cliente, p_telefone);
-    
-    SELECT v_id_cliente as id;
-
-END
-
 -- deleta cliente
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `deleta_cliente`(IN p_id INT)
@@ -429,4 +362,36 @@ BEGIN
     LEFT JOIN enderecos e ON c.id_cliente = e.id_cliente;
 END
 
---
+-- cadastra cliente
+
+CREATE PROCEDURE `cadastra_cliente`(
+    IN p_nome VARCHAR(100),
+    IN p_cpf VARCHAR(14),
+    IN p_email VARCHAR(100),
+    IN p_data_nascimento DATE,
+    IN p_cep VARCHAR(9),
+    IN p_rua VARCHAR(100),
+    IN p_bairro VARCHAR(100),
+    IN p_cidade VARCHAR(100),
+    IN p_uf CHAR(2),
+    IN p_numero VARCHAR(10),
+    IN p_complemento VARCHAR(100),
+    IN p_telefone VARCHAR(20)
+)
+BEGIN
+    DECLARE v_id_cliente INT;
+
+    INSERT INTO clientes (nome_cliente, cpf, email, data_nascimento) 
+    VALUES (p_nome, p_cpf, p_email, p_data_nascimento);
+
+    SET v_id_cliente = LAST_INSERT_ID();
+
+    INSERT INTO enderecos (id_cliente, cep, rua, bairro, cidade, uf, numero, complemento)
+    VALUES (v_id_cliente, p_cep, p_rua, p_bairro, p_cidade, p_uf, p_numero, p_complemento);
+
+    INSERT INTO telefones (id_cliente, telefone)
+    VALUES (v_id_cliente, p_telefone);
+    
+    SELECT v_id_cliente as id;
+
+END $$

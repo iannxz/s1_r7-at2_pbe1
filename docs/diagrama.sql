@@ -85,13 +85,25 @@ CREATE TABLE IF NOT EXISTS `rapido_seguro`.`pedidos` (
   `valor_base_km` DECIMAL(10,2) NOT NULL,
   `valor_base_kg` DECIMAL(10,2) NOT NULL,
   `id_cliente` INT NOT NULL,
+  `id_endereco` INT NOT NULL,
+
   PRIMARY KEY (`id_pedido`),
-  INDEX `fk_pedidos_clientes1_idx` (`id_cliente` ASC) VISIBLE,
-  CONSTRAINT `fk_pedidos_clientes1`
+
+  INDEX `fk_pedidos_clientes_idx` (`id_cliente` ASC) VISIBLE,
+  INDEX `fk_pedidos_enderecos_idx` (`id_endereco` ASC) VISIBLE,
+
+  CONSTRAINT `fk_pedidos_clientes`
     FOREIGN KEY (`id_cliente`)
     REFERENCES `rapido_seguro`.`clientes` (`id_cliente`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
+
+  CONSTRAINT `fk_pedidos_enderecos`
+    FOREIGN KEY (`id_endereco`)
+    REFERENCES `rapido_seguro`.`enderecos` (`id_endereco`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
 ENGINE = InnoDB;
 
 

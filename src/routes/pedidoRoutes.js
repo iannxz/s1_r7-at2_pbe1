@@ -7,3 +7,4 @@ pedidoRoutes.post('/pedido', pedidoController.inserePedido);
 pedidoRoutes.put('/pedido/:idPedido', pedidoController.atualizaPedido);
 
 module.exports =  pedidoRoutes ; 
+
