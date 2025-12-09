@@ -1,8 +1,16 @@
 const clienteModel = require('../models/clienteModel');
+/**
+ * Controller responsável pelas operações de Clientes.
+ */
+const clienteController = {
 
-const  clienteController = {
-
-  incluiCliente: async (req, res) => {
+  /**
+   * Cadastra um novo cliente no sistema.
+   * Busca o endereço automaticamente via API ViaCEP.
+   * * @param {Object} req - Objeto de requisição do Express.
+   * @param {Object} res - Objeto de resposta do Express.
+   */
+    incluiCliente: async (req, res) => {
     try {
       const { nome, cpf, email, data_nascimento, cep, numero, complemento, telefone } = req.body;
 
@@ -50,8 +58,13 @@ const  clienteController = {
         id_cliente: resultado.id
       });
 
-    } catch (error) {
-      console.error(error);
+} catch (error) {
+
+      if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
+          return res.status(409).json({ 
+              message: 'Já existe um cliente cadastrado com este CPF ou E-mail.' 
+          });
+      }
       res.status(500).json({
         message: 'Ocorreu um erro no servidor',
         error: error.message
@@ -59,7 +72,11 @@ const  clienteController = {
     }
   },
 
-
+/**
+   * Remove um cliente do sistema pelo ID.
+   * * @param {Object} req - Objeto de requisição.
+   * @param {Object} res - Objeto de resposta.
+   */
 deletaCliente: async (req, res) => {
     try {
       const { id } = req.params; // id do cliente a ser deletado cliente/5
@@ -93,6 +110,11 @@ const clienteExiste = await clienteModel.verificarSeExiste(id);
     }
   },
 
+  /**
+   * Retorna todos os clientes cadastrados.
+   * * @param {Object} req - Objeto de requisição.
+   * @param {Object} res - Objeto de resposta.
+   */
   selecionaTodos: async (req, res) => {
     try {
       const clientes = await clienteModel.selectAll();
@@ -112,6 +134,13 @@ const clienteExiste = await clienteModel.verificarSeExiste(id);
       });
     }
   },
+
+  /**
+   * Atualiza os dados de um cliente existente.
+   * Recalcula o endereço via CEP para garantir consistência.
+   * * @param {Object} req - Objeto de requisição.
+   * @param {Object} res - Objeto de resposta.
+   */
 atualizaCliente: async (req, res) => {
     try {
       const { id } = req.params;
