@@ -22,14 +22,27 @@ END $$
 
 DELIMITER ;
 
+-- Verificar se o endereço é do cliente
+
+DELIMITER $$
+
+CREATE PROCEDURE listar_endereco_id(IN pIdEndereco INT, IN pIdCliente INT)
+BEGIN
+    SELECT * FROM enderecos
+    WHERE id_endereco = pIdEndereco
+      AND id_cliente = pIdCliente;
+END $$
+
+DELIMITER ;
+
 -- Criação de Procedure de inserir pedido
 
 DELIMITER $$
 
-CREATE PROCEDURE inserir_pedido(IN pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT)
+CREATE PROCEDURE inserir_pedido(IN pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT, pIdEndereco INT)
 BEGIN
-INSERT INTO pedidos(tipo_entrega, distancia, peso_carga, valor_base_km, valor_base_kg, id_cliente) VALUES
-	(pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente);
+INSERT INTO pedidos(tipo_entrega, distancia, peso_carga, valor_base_km, valor_base_kg, id_cliente, id_endereco) VALUES
+	(pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente, pIdEndereco);
 END $$
 
 DELIMITER ;
@@ -38,7 +51,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE alterar_pedido(IN pId INT, pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT)
+CREATE PROCEDURE alterar_pedido(IN pId INT, pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT, pIdEndereco INT)
 BEGIN
     UPDATE pedidos
     SET
@@ -47,7 +60,8 @@ BEGIN
         peso_carga = pPesoCarga,
         valor_base_km = pValorBaseKm,
         valor_base_kg = pValorBaseKg,
-        id_cliente = pIdCliente
+        id_cliente = pIdCliente,
+        id_endereco = pIdEndereco
     WHERE
         id_pedido = pId; 
 END $$
