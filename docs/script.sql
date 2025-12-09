@@ -22,14 +22,27 @@ END $$
 
 DELIMITER ;
 
+-- Verificar se o endereço é do cliente
+
+DELIMITER $$
+
+CREATE PROCEDURE listar_endereco_id(IN pIdEndereco INT, IN pIdCliente INT)
+BEGIN
+    SELECT * FROM enderecos
+    WHERE id_endereco = pIdEndereco
+      AND id_cliente = pIdCliente;
+END $$
+
+DELIMITER ;
+
 -- Criação de Procedure de inserir pedido
 
 DELIMITER $$
 
-CREATE PROCEDURE inserir_pedido(IN pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT)
+CREATE PROCEDURE inserir_pedido(IN pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT, pIdEndereco INT)
 BEGIN
-INSERT INTO pedidos(tipo_entrega, distancia, peso_carga, valor_base_km, valor_base_kg, id_cliente) VALUES
-	(pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente);
+INSERT INTO pedidos(tipo_entrega, distancia, peso_carga, valor_base_km, valor_base_kg, id_cliente, id_endereco) VALUES
+	(pTipoEntrega, pDistancia, pPesoCarga, pValorBaseKm, pValorBaseKg, pIdCliente, pIdEndereco);
 END $$
 
 DELIMITER ;
@@ -38,7 +51,7 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE alterar_pedido(IN pId INT, pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT)
+CREATE PROCEDURE alterar_pedido(IN pId INT, pTipoEntrega VARCHAR(45), pDistancia DECIMAL(10,2), pPesoCarga DECIMAL(10,2), pValorBaseKm DECIMAL(10,2), pValorBaseKg DECIMAL(10,2), pIdCliente INT, pIdEndereco INT)
 BEGIN
     UPDATE pedidos
     SET
@@ -47,7 +60,8 @@ BEGIN
         peso_carga = pPesoCarga,
         valor_base_km = pValorBaseKm,
         valor_base_kg = pValorBaseKg,
-        id_cliente = pIdCliente
+        id_cliente = pIdCliente,
+        id_endereco = pIdEndereco
     WHERE
         id_pedido = pId; 
 END $$
@@ -261,137 +275,45 @@ END $$
 
 DELIMITER ;
 
---
 
+-- Telefone
 
-CREATE PROCEDURE deleta_cliente(IN p_id INT)
+-- Inserir mais telefones para um cliente expecifico
+DELIMITER $$
+
+CREATE PROCEDURE inserir_telefone(IN pIdCliente INT, IN pTelefone CHAR(11))
 BEGIN
-    DELETE e 
-    FROM entregas e 
-    INNER JOIN pedidos p ON e.id_pedido_entrega = p.id_pedido 
-    WHERE p.id_cliente = p_id;
-
-    DELETE FROM pedidos WHERE id_cliente = p_id;
-
-    DELETE FROM telefones WHERE id_cliente = p_id;
-
-    DELETE FROM enderecos WHERE id_cliente = p_id;
-
-    DELETE FROM clientes WHERE id_cliente = p_id; 
-END
-
--- atualiza cliente
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `atualiza_cliente`(
-    IN p_id_cliente INT,
-    IN p_nome VARCHAR(100),
-    IN p_cpf VARCHAR(14),
-    IN p_email VARCHAR(100),
-    IN p_data_nascimento DATE,
-    IN p_cep VARCHAR(9),
-    IN p_rua VARCHAR(100),
-    IN p_bairro VARCHAR(100),
-    IN p_cidade VARCHAR(100),
-    IN p_uf CHAR(2),
-    IN p_numero VARCHAR(10),
-    IN p_complemento VARCHAR(100),
-    IN p_telefone VARCHAR(20)
-)
-BEGIN
-
-    UPDATE clientes 
-    SET nome_cliente = p_nome, 
-        cpf = p_cpf, 
-        email = p_email, 
-        data_nascimento = p_data_nascimento
-    WHERE id_cliente = p_id_cliente;
-
-    UPDATE enderecos 
-    SET cep = p_cep, 
-        rua = p_rua, 
-        bairro = p_bairro, 
-        cidade = p_cidade, 
-        uf = p_uf, 
-        numero = p_numero, 
-        complemento = p_complemento
-    WHERE id_cliente = p_id_cliente;
-
-
-    UPDATE telefones 
-    SET telefone = p_telefone
-    WHERE id_cliente = p_id_cliente;
-END
-
--- deleta cliente
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `deleta_cliente`(IN p_id INT)
-BEGIN
-    DELETE e 
-    FROM entregas e 
-    INNER JOIN pedidos p ON e.id_pedido_entrega = p.id_pedido 
-    WHERE p.id_cliente = p_id;
-
-    DELETE FROM pedidos WHERE id_cliente = p_id;
-
-    DELETE FROM telefones WHERE id_cliente = p_id;
-
-    DELETE FROM enderecos WHERE id_cliente = p_id;
-
-    DELETE FROM clientes WHERE id_cliente = p_id; 
-END
-
---  seleciona clientes
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `seleciona_clientes`()
-BEGIN
-    SELECT 
-        c.id_cliente,
-        c.nome_cliente,
-        c.cpf,
-        c.email,
-        c.data_nascimento,
-
-        e.cep,
-        e.rua,
-        e.numero,
-        e.bairro,
-        e.cidade,
-        e.uf,
-        e.complemento
-    FROM clientes c
-    LEFT JOIN enderecos e ON c.id_cliente = e.id_cliente;
-END
-
--- cadastra cliente
-
-CREATE PROCEDURE `cadastra_cliente`(
-    IN p_nome VARCHAR(100),
-    IN p_cpf VARCHAR(14),
-    IN p_email VARCHAR(100),
-    IN p_data_nascimento DATE,
-    IN p_cep VARCHAR(9),
-    IN p_rua VARCHAR(100),
-    IN p_bairro VARCHAR(100),
-    IN p_cidade VARCHAR(100),
-    IN p_uf CHAR(2),
-    IN p_numero VARCHAR(10),
-    IN p_complemento VARCHAR(100),
-    IN p_telefone VARCHAR(20)
-)
-BEGIN
-    DECLARE v_id_cliente INT;
-
-    INSERT INTO clientes (nome_cliente, cpf, email, data_nascimento) 
-    VALUES (p_nome, p_cpf, p_email, p_data_nascimento);
-
-    SET v_id_cliente = LAST_INSERT_ID();
-
-    INSERT INTO enderecos (id_cliente, cep, rua, bairro, cidade, uf, numero, complemento)
-    VALUES (v_id_cliente, p_cep, p_rua, p_bairro, p_cidade, p_uf, p_numero, p_complemento);
-
-    INSERT INTO telefones (id_cliente, telefone)
-    VALUES (v_id_cliente, p_telefone);
-    
-    SELECT v_id_cliente as id;
-
+    INSERT INTO telefones(telefone, id_cliente) VALUES
+	(pTelefone, pIdCliente);
 END $$
+
+DELIMITER ;
+
+
+-- telefone expecifico
+
+DELIMITER $$
+
+CREATE PROCEDURE listar_telefone_id(IN pIdTelefone INT)
+BEGIN
+    SELECT *
+    FROM telefones
+    WHERE id_telefone = pIdTelefone;
+END $$
+
+DELIMITER ;
+
+
+-- Deletar telefone
+
+DELIMITER $$
+
+CREATE PROCEDURE deletar_telefone(IN pIdTelefone INT)
+BEGIN
+    DELETE FROM telefones WHERE id_telefone = pIdTelefone; 	
+END $$
+
+DELIMITER ;
+
+
+
