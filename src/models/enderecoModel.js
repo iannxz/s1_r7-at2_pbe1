@@ -5,8 +5,9 @@ const db = require('../config/db');
  */
 const enderecoModel = {
   
-  /**
+  /*
    * Insere um novo endereço ligado a um cliente.
+   * 
    * @param {Object} dados - Objeto contendo id_cliente, cep, rua, etc.
    */
   insert: async (dados) => {
