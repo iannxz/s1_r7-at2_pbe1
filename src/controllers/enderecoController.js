@@ -13,28 +13,28 @@ const enderecoController = {
    */
   adicionarEndereco: async (req, res) => {
     try {
-     
-      const { id_cliente, cep, numero, complemento } = req.body;
+      const { id_cliente } = req.params;
+      const { cep, numero, complemento } = req.body;
 
       // Validações Básicas
       if (!id_cliente) {
-        return res.status(400).json({ message: 'O ID do cliente é obrigatório.' });
+         res.status(400).json({ message: 'O ID do cliente é obrigatório.' });
       }
 
       if (!cep || cep.length !== 8) {
-        return res.status(400).json({ message: 'O CEP é obrigatório e deve ter 8 dígitos (apenas números).' });
+         res.status(400).json({ message: 'O CEP é obrigatório e deve ter 8 dígitos (apenas números).' });
       }
 
       const respostaViaCep = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       
       if (!respostaViaCep.ok) {
-        throw new Error('Falha na comunicação com o serviço de CEP');
+         res.status(400).json({ message: 'Falha na comunicação com o serviço de CEP' });
       }
 
       const dadosViaCep = await respostaViaCep.json();
 
       if (dadosViaCep.erro) {
-        return res.status(404).json({ message: 'CEP não encontrado.' });
+        res.status(404).json({ message: 'CEP não encontrado.' });
       }
 
       const dadosEndereco = {
@@ -56,11 +56,10 @@ const enderecoController = {
       });
 
     } catch (error) {
-      console.error(error);
       
       // Tratamento se o cliente não existir
       if (error.code === 'ER_NO_REFERENCED_ROW_2' || error.errno === 1452) {
-        return res.status(404).json({ message: 'Cliente não encontrado. Verifique o ID informado.' });
+       res.status(404).json({ message: 'Cliente não encontrado. Verifique o ID informado.' });
       }
 
       res.status(500).json({ 
@@ -78,13 +77,13 @@ const enderecoController = {
         const { id_cliente } = req.params;
 
         if (!id_cliente) {
-            return res.status(400).json({ message: 'ID do cliente é obrigatório.' });
+           res.status(400).json({ message: 'ID do cliente é obrigatório.' });
         }
 
         const enderecos = await enderecoModel.buscarPorCliente(id_cliente);
 
         if (!enderecos || enderecos.length === 0) {
-            return res.status(200).json({ message: 'Nenhum endereço extra encontrado para este cliente.' });
+         res.status(200).json({ message: 'Nenhum endereço extra encontrado para este cliente.' });
         }
 
         res.status(200).json(enderecos);

@@ -1,4 +1,5 @@
 const db = require('../config/db'); 
+const { selectById } = require('./pedidoModel');
 
 
 /**
@@ -15,8 +16,8 @@ const clienteModel  = {
    * @returns {Promise<Object>} Retorna o ID do cliente inserido.
    */
   insert: async (dadosCliente, dadosEndereco, telefone) => {
-    try {
-      const sql = `CALL cadastra_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const sql = `CALL cadastra_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`; // chamando a procedure
       
       const values = [
         dadosCliente.nome,
@@ -36,12 +37,8 @@ const clienteModel  = {
 
       const [rows] = await db.query(sql, values);
       
-      return rows[0][0]; 
+      return rows[0][0]; // lendo em formato de tabela (coluna e linha)
 
-    } catch (error) {
-      console.error("Erro ao executar procedure:", error);
-      throw error;
-    }
   },
 
   /**
@@ -50,53 +47,39 @@ const clienteModel  = {
    * @returns {Promise<boolean>} True se existir, False se não.
    */
   verificarSeExiste: async (id) => {
-    try {
+    
       const sql = 'SELECT id_cliente FROM clientes WHERE id_cliente = ?'; 
       const [rows] = await db.query(sql, [id]);
-      
-      // true se encontrar, false se nao encontrar
-      return rows.length > 0;
-    } catch (error) {
-      throw error;
-    }
+      return [rows]
   },
 
 
 /**
    * Remove um cliente chamando a procedure 'deleta_cliente'.
    * * @param {number|string} id - ID do cliente a ser removido.
-   * @returns {Promise<boolean>} Retorna true após sucesso.
    */
 delete: async (id) => {
-    try {
+    
       const sql = 'CALL deleta_cliente(?)';
-
       await db.query(sql, [id]);
-      
-      return true;
-    } catch (error) {
-      console.error("Erro ao deletar cliente:", error);
-      throw error;
-    }
   },
-
 
   /**
    * Busca todos os clientes chamando a procedure 'seleciona_clientes'.
    * * @returns {Promise<Array>} Lista de clientes.
    */
   selectAll: async () => {
-    try {
       const sql = 'CALL seleciona_clientes()';
       const [rows] = await db.query(sql);
       
       return rows[0]; 
-    } catch (error) {
-      console.error("Erro ao selecionar clientes:", error);
-      throw error;
-    }
   },
 
+  selectById: async (id) => {
+      const sql = 'SELECT * FROM clientes WHERE id_cliente = ?';
+      const [rows] = await db.query(sql, id);
+      return rows;
+  },
 
   /**
    * Atualiza um cliente chamando a procedure 'atualiza_cliente'.
@@ -108,7 +91,6 @@ delete: async (id) => {
    * @returns {Promise<boolean>} Retorna true após sucesso.
    */
   update: async (id, dadosCliente, dadosEndereco, telefone) => {
-    try {
       const sql = `CALL atualiza_cliente(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       
       const values = [
@@ -130,12 +112,6 @@ delete: async (id) => {
       ];
 
       await db.query(sql, values);
-      return true;
-
-    } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
-      throw error;
-    }
   },
 };
 

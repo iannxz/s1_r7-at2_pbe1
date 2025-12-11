@@ -25,7 +25,7 @@ const clienteController = {
       const respostaViaCep = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       
       if (!respostaViaCep.ok) {
-        throw new Error('Falha na comunicação com o serviço de CEP');
+        res.status(500).json({ message: 'Falha na comunicação com o serviço de CEP' }); // erro 500 pois deu problema na api 
       }
 
       const dadosViaCep = await respostaViaCep.json();
@@ -36,7 +36,7 @@ const clienteController = {
 
       const dadosCliente = {
         nome: nome,
-        cpf: cpf.replace(/\D/g, ''),
+        cpf: cpf.replace(/\D/g, ''), // retira pontuação no cpf 
         email: email ,
         data_nascimento: data_nascimento
       };
@@ -61,7 +61,7 @@ const clienteController = {
 } catch (error) {
 
       if (error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
-          return res.status(409).json({ 
+          return res.status(409).json({ // erro 409 pois houve conflito com os dados existentes 
               message: 'Já existe um cliente cadastrado com este CPF ou E-mail.' 
           });
       }
@@ -102,7 +102,7 @@ const clienteExiste = await clienteModel.verificarSeExiste(id);
       });
 
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       return res.status(500).json({ 
         message: 'Erro ao excluir cliente', 
         error: error.message 
@@ -127,12 +127,38 @@ const clienteExiste = await clienteModel.verificarSeExiste(id);
       return res.status(200).json(clientes);
       
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       return res.status(500).json({ 
         message: 'Erro ao buscar clientes', 
         error: error.message 
       });
     }
+  },
+
+  selecionaCliente: async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+
+      if (!id || isNaN(id)) {
+
+        return res.status(400).json({ 
+            message: 'Erro: O ID informado deve ser um número válido.' 
+        });
+      }
+      const cliente = await clienteModel.selectById(id);
+      if (cliente.length === 0 || !cliente) {
+         return res.status(404).json({ message: 'Cliente não encontrado.' }); 
+      }
+
+      return res.status(200).json(cliente);
+
+    } catch (error) {
+      return res.status(500).json({ 
+        message: 'Erro ao buscar cliente', 
+        error: error.message 
+      }); 
+
+    }    
   },
 
   /**
@@ -143,11 +169,11 @@ const clienteExiste = await clienteModel.verificarSeExiste(id);
    */
 atualizaCliente: async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = Number(req.params); // transformando id em numero 
       const { nome, cpf, email, data_nascimento, cep, numero, complemento, telefone } = req.body;
 
-      // Validação 
-      if (!id || !nome || !cpf || !cep) {
+      // validação 
+      if (!id || isNaN(id) || !nome || !cpf || !cep) {
         return res.status(400).json({ message: 'ID, Nome, CPF e CEP são obrigatórios.' });
       }
 

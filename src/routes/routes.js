@@ -10,7 +10,7 @@ const telefoneRoutes = require('./telefoneRoutes');
 router.use('/', clienteRoutes);
 router.use('/', pedidoRoutes);
 router.use('/', entregaRoutes);
-router.use('/enderecos', enderecoRoutes); 
+router.use('/', enderecoRoutes); 
 router.use('/', telefoneRoutes);
 
 module.exports = router;
