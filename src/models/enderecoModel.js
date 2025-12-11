@@ -10,7 +10,6 @@ const enderecoModel = {
    * @param {Object} dados - Objeto contendo id_cliente, cep, rua, etc.
    */
   insert: async (dados) => {
-    try {
       const sql = `INSERT INTO enderecos (id_cliente, cep, rua, bairro, cidade, uf, numero, complemento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       
       const values = [
@@ -26,10 +25,6 @@ const enderecoModel = {
 
       const [result] = await db.query(sql, values);
       return result;
-
-    } catch (error) {
-      throw error;
-    }
   },
 
   /**
@@ -37,13 +32,9 @@ const enderecoModel = {
    * @param {number} idCliente 
    */
   buscarPorCliente: async (idCliente) => {
-      try {
           const sql = 'SELECT * FROM enderecos WHERE id_cliente = ?';
           const [rows] = await db.query(sql, [idCliente]);
           return rows;
-      } catch (error) {
-          throw error;
-      }
   }
 };
 
